@@ -1,0 +1,26 @@
+{
+  "name": "graphqlserver",
+  "version": "1.0.0",
+  "description": "Curso de GraphQL ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocady21/React-Avanzado.git"
+  },
+  "author": "Rodrigo Olivera",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rocady21/React-Avanzado/issues"
+  },
+  "homepage": "https://github.com/rocady21/React-Avanzado#readme",
+  "dependencies": {
+    "apollo-server": "^3.12.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
