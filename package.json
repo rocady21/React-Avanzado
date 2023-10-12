@@ -19,7 +19,9 @@
   "homepage": "https://github.com/rocady21/React-Avanzado#readme",
   "dependencies": {
     "apollo-server": "^3.12.1",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.0"
   },
   "devDependencies": {
