@@ -103,6 +103,73 @@ const resolvers = {
             } catch (error) {
                 console.log("error");
             }
+        },
+        obtenerPedido:async(_,{id},ctx)=> {
+            try {
+                // verificar si el pedido existe
+                const pedido = await Pedido.find({_id:id})
+
+                if(!pedido) {
+                    throw new Error("Error, el pedido con existe")
+                }
+                // solo quien lo creo puede acceder al mismo 
+                if(pedido.vendedor.toString() !== ctx.usuario.id) {
+                    throw new Error("Error, solo quien creo el pedido puede acceder al mismo")
+                }
+                // retornar el resultado
+                return pedido
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        // querys avanzadas
+        mejoresClientes:async(_,{},ctx)=> {
+            try {
+                const clientes = await Pedido.aggregate([
+                    {$match : {estado: "COMPLETADO"}},
+                    // para agrupar los pedidos por id y sumar los totales
+                    {$group : {
+                        _id : "$cliente",
+                        total: {$sum : "$total"}
+                    }},
+                    // lookup seria como un join
+                    {
+                        $lookup: {
+                            from: "cleintes",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "cliente"
+                        }
+                    }
+                ])
+
+                return clientes
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        mejoresVendedores:async()=> {
+            const vendedores = await Pedido.aggregate([
+                {$match : {estado : "COMPLETADO"}},
+                {$group : {
+                    _id : "vendedor",
+                    total: {$sum : "$total"}
+                }},
+                {
+                    $lookup: {
+                        from: "usuarios",
+                        localField: "_id",
+                        foreignField:"_id",
+                        as: "vemdedor"
+                    }
+                }
+            ])
+        },
+        buscarProductosPorNombre:async(_,{texto},ctx)=> {
+            const productos = await Productos.find({$text: {$search: texto} })
+
+            return productos
         }
         
         
@@ -252,6 +319,7 @@ const resolvers = {
 
             return "Se elimino correctamente"
         },
+        // Pedido
         nuevoPedido:async(_,{input},ctx)=> {
             // Esta funcion necesita mandar el token del usuario que este autenticado
             // Verificar si el cliente existe o no 
@@ -290,6 +358,75 @@ const resolvers = {
             return resultado
 
             // Guardarlo en la base de datos
+        },
+        actualiarPedido:async(_,{id,input},ctx)=> {
+            try {
+                // ver si el pedido exist
+                const existPedido = await Pedido.find({_id:id})
+
+                if(!existPedido) {
+                    throw new Error("Error, el pedido no existe")
+                }
+                // ver si el cliente existe
+                const existCliente = await Clientes.find({_id:existPedido.id})
+
+                if(!existCliente) {
+                    throw new Error("Error, el cliente no existe")
+                }
+
+                // si el cliente y pedido pertenece al vendedor
+
+                
+                if(existPedido.vendedor.toString !== ctx.usuario.id ) {
+                    throw new Error("Solo puedes editar a tus clientes")
+                }
+
+                // revisar el stock
+
+                for await (const articulo of input.pedido) {
+                    const producto = await Productos.findOne({_id:articulo.id})
+    
+                    if(producto.existencia < articulo.cantidad) {
+                        throw new Error("Error, no puede ingresar una cantidad mayor a la ya existente del producto" + producto.nombre)
+                    } else {
+                        producto.existencia = producto.existencia - articulo.cantidad
+    
+                        await producto.save()
+                    }
+                };
+
+                // guardar el pedido
+                const result = await pedido.findOneAndUpdate({_id:id},input,{new:true})
+                return result
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        eliminarPedido:async(_,{id},ctx)=> {
+            try {
+                // verificar si el pedido existe
+                const pedido = await pedido.findOne({_id:id})
+
+                if(!pedido) {
+                    throw new Error("Error, el pedido no existe")
+                }
+                
+                await Pedido.findOneAndDelete({_id:id})
+
+                return "Pedido Borrado Exitosamente!"
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        obtenerPedidosByEstado:async(_,{estado},ctx)=>{
+            try {
+                // esta funcion necesitamos pasarle el token 
+                const pedidos = await Pedido.find({vendedor:ctx.usuario.id,estado:estado})
+                
+                return pedidos
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 }

@@ -24,6 +24,10 @@ const ProductSchema = mongoose.Schema({
 })
 
 
+// necesitamos crear un indice para poder buscar
+
+ProductSchema.index({nombre: "text"})
+
 
 // Exporto el modelo diciendole que se llame usuario
 module.exports = mongoose.model("Productos",ProductSchema)
