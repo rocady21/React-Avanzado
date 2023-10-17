@@ -13,6 +13,21 @@ const typeDefs = gql`
         password: String
         creado: String
     },
+
+    type Pedido {
+        id: ID,
+        pedido: [PedidoGrupo],
+        total: Float,
+        cliente: ID,
+        vendedor: ID,
+        creado: String,
+        estado: EstadoPedido
+    }
+
+    type PedidoGrupo {
+        id: ID
+        cantidad: Int
+    }
     type Token {
         token: String
     }
@@ -63,12 +78,40 @@ const typeDefs = gql`
         telefono: String
     }
 
+    input PedidoProductoInput {
+        id: ID,
+        cantidad: Int
+    }
+
+    input PedidoInput {
+        pedido: [PedidoProductoInput],
+        total: Float!,
+        cliente: ID,
+        estado: EstadoPedido
+    }
+
+    #Para decirle que el estado solo seran 3 lo hacemos con enum
+
+    enum EstadoPedido {
+        PENDIENTE
+        COMPLETADO
+        CANCELADO
+    }
+
     type Query{
         #Usuario
         obtenerInfoByToken(token: String!):Usuario,
-
+        
         #Productos
         obtenerProductos:[Producto]
+
+        #Clientes
+        obtenerClientes : [Cliente]
+        obtenerClientesVendedor:[Cliente]
+        obtenerCliente(id : ID) : Cliente
+
+        #Pedidos 
+        obtenerPedidos : [Pedido]
 
     }
 
@@ -86,8 +129,12 @@ const typeDefs = gql`
 
         #Clientes
         nuevoCliente(input: clienteInput):Cliente,
-        actualizarCliente(input: clienteInput):Cliente
+        actualizarCliente(id: ID , input: clienteInput):Cliente
         borrarCliente(id:ID): String
+
+        #Pedidos
+        nuevoPedido(input: PedidoInput) : Pedido
+        
     }
 `
 
