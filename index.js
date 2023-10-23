@@ -3,6 +3,8 @@ const typeDefs = require("./db/schema")
 const resolvers = require("./db/resolvers")
 const conectarDB = require("./config/config")
 const jwt = require("jsonwebtoken")
+const Clientes = require("./Models/Clientes")
+const Usuario = require("./Models/Usuario")
 // para poder usar variables de entorno mediante env
 require("dotenv").config({path: "variables.env"})
 
@@ -12,13 +14,14 @@ conectarDB()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({req})=> {
+    context:async({req})=> {
         const token = req.headers["authorization"] || ""
-        console.log("xd");
+        console.log(token);
         if( token ) {
             try {
-                const usuario = jwt.verify(token,process.env.PALABRA_SECRET)
-
+                const us = jwt.verify(token,process.env.PALABRA_SECRET)
+                const usuario = await Usuario.findOne({_id:us.id})
+            
                 return {
                     usuario
                 }

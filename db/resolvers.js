@@ -18,7 +18,9 @@ const createToken = (usuario,secret,expiresIn) => {
     const {id,nombre,email,apellido} = usuario
     const paylaod = {
         id,
-        email
+        email,
+        nombre,
+        apellido
     }
 
     // para firmar un nuevo token
@@ -28,14 +30,8 @@ const createToken = (usuario,secret,expiresIn) => {
 //Resolvers
 const resolvers = {
     Query:{
-        obtenerInfoByToken:async(_,{token},ctx)=>  {
-            const userToken = await jwt.verify(token,process.env.PALABRA_SECRET)
-            const {id} = userToken
-            if(id) {
-                const userbyToken = await Usuario.findOne({_id:id})
-                return userbyToken
-            }
-            throw new Error("Error, el token no es valido")
+        obtenerInfoByToken:async(_,{},ctx)=>  {
+            return ctx.usuario
         },
         obtenerProductos:async()=> {
             try {
@@ -58,11 +54,12 @@ const resolvers = {
         },
         obtenerClientesVendedor:async(_,{},ctx)=> {
             // Esta funcion necesita mandar el token del usuario que este autenticado
-
             console.log(ctx);
+            console.log("CTX");
             try {
                 const clients = await Clientes.find({vendedor:ctx.usuario.id})
                 console.log(clients);
+                console.log("Clientes");
                 return clients
                 
             } catch (error) {
@@ -310,8 +307,9 @@ const resolvers = {
         },
         borrarCliente:async(_,{id},ctx)=> {
             const cliente = await Clientes.findOne({_id:id})
-
-            if(cliente) {
+            console.log("XDDDDDDDDDD");
+            console.log(id);
+            if(!cliente) {
                 throw new Error("Error, el clinete que desea eliminar no existe")
             }
 
