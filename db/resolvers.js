@@ -67,6 +67,7 @@ const resolvers = {
             }
         },
         obtenerCliente:async(_,{id},ctx)=> {
+
             // Esta funcion necesita mandar el token del usuario que este autenticado
             const cliente = await Clientes.findOne({_id:id})
 
@@ -75,10 +76,6 @@ const resolvers = {
             }
 
             // para que el usuario solo pueda acceder a sus clientes
-            if(cliente.vendedor !== ctx.usuario.id.toString() ) {
-                throw new Error("Solo puedes acceder a tus clientes")
-            }
-
             return cliente
         },
         //Pedidos
@@ -142,6 +139,18 @@ const resolvers = {
                 ])
 
                 return clientes
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        obtenerProductoById:async(_,{id},ctx)=> {
+            try {
+                const producto = await Productos.findOne({_id:id})
+                if(producto.nombre){
+                    return producto
+                }
+                throw new Error("Error, el producto no existe")
+                
             } catch (error) {
                 console.log(error);
             }
@@ -224,18 +233,6 @@ const resolvers = {
             }
 
         },
-        obtenerProductoById:async(_,{id},ctx)=> {
-            try {
-                const producto = await Productos.findOne({_id:id})
-                if(producto.nombre){
-                    return producto
-                }
-                throw new Error("Error, el producto no existe")
-                
-            } catch (error) {
-                console.log(error);
-            }
-        },
         actualizarProducto:async(_,{id,input},ctx)=> {
             try {
                 let producto = await Productos.findOne({_id:id})
@@ -287,6 +284,7 @@ const resolvers = {
             }
         },
         actualizarCliente:async(_,{id,input},ctx)=> {
+ 
             // Esta funcion necesita mandar el token del usuario que este autenticado
             let cliente = await Clientes.findById(id)
 
@@ -294,8 +292,9 @@ const resolvers = {
                 throw new Error("Error, el cliente no existe")
             }
 
-            if(cliente.vendedor !== ctx.usuario.id.toString() ) {
-                throw new Error("Solo puedes editar a tus clientes")
+
+            if(cliente.vendedor === ctx.usuario.id.toString() ) {
+                console.log("son iguales");
             }
 
             // guardar el cliente

@@ -115,7 +115,8 @@ const typeDefs = gql`
         obtenerInfoByToken:Usuario,
         
         #Productos
-        obtenerProductos:[Producto]
+        obtenerProductos:[Producto],
+        obtenerProductoById(id: ID): Producto,
 
         #Clientes
         obtenerClientes : [Cliente]
@@ -141,7 +142,6 @@ const typeDefs = gql`
         
         #Productos
         nuevoProducto(input: ProductoInput): Producto,
-        obtenerProductoById(id: ID): Producto,
         actualizarProducto(id:ID , input:ProductoInput): Producto,
         EliminarProducto(id: ID): String,
 
