@@ -318,6 +318,7 @@ const resolvers = {
         },
         // Pedido
         nuevoPedido:async(_,{input},ctx)=> {
+            console.log(input);
             // Esta funcion necesita mandar el token del usuario que este autenticado
             // Verificar si el cliente existe o no 
             const {cliente,vendedor} = input
@@ -328,7 +329,9 @@ const resolvers = {
                 throw new Error("Error, el cliente no existe")
             }
 
-            if(clienteExist.vendedor !== ctx.usuario.id.toString() ) {
+            console.log(clienteExist.vendedor);
+            console.log(ctx.usuario.id);
+            if(clienteExist.vendedor.toString() !== ctx.usuario.id ) {
                 throw new Error("Solo puedes acceder a tus clientes")
             }
 
